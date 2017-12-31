@@ -36,7 +36,8 @@ Show any code that is needed to:
 - Load the data (i.e. read.csv())
 - Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r loadpreprocess}
+
+```r
 ##setting workingdirectories
 wd <- getwd()
 
@@ -51,7 +52,13 @@ unzip(zipfile = "./data/Dataset.zip", exdir="./data")
 ##check if the files are there
 fp <- file.path(getwd(),"data")
 list.files(fp, recursive = TRUE)
+```
 
+```
+## [1] "activity.csv" "Dataset.zip"
+```
+
+```r
 ##set wd to location of file
 setwd(fp)
 
@@ -63,7 +70,20 @@ setwd(wd)
 
 ##lubridate is great for handling dates
 library(lubridate)
+```
 
+```
+## 
+## Attaching package: 'lubridate'
+```
+
+```
+## The following object is masked from 'package:base':
+## 
+##     date
+```
+
+```r
 ##add weekday and indication of weekday/weekend; needed later in the assignment
 act$date <- ymd(act$date)
 act$date_wday <- weekdays(act$date)
@@ -81,7 +101,8 @@ For this part of the assignment, you can ignore the missing values in the datase
 Calculate the total number of steps taken per day
 If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
 
-```{r histogram_1}
+
+```r
 ##aggregate data
 act_steps_per_day <- as.data.frame(tapply(act$steps, act$date, sum, na.rm = TRUE))
 act_steps_per_day$date <- rownames(act_steps_per_day)
@@ -98,21 +119,26 @@ hist(act_steps_per_day$steps,
      breaks=seq(from=0, to=25000, by=3000))
 ```
 
+![](PA1_template_files/figure-html/histogram_1-1.png)<!-- -->
+
 
 ##Calculate and report the mean and median of the total number of steps taken per day
-```{r mean_1}
+
+```r
 mean_1 <- mean(act_steps_per_day$steps)
 ```
-```{r median_1}
+
+```r
 median_1 <- median(act_steps_per_day$steps)
 ```
-The mean number of steps is `r mean_1`; the median number of steps is `r median_1`.
+The mean number of steps is 9354.2295082; the median number of steps is 10395.
 
 ##What is the average daily activity pattern?
 
 Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r plot_1}
+
+```r
 ##aggregate data
 act_steps_per_int <- aggregate(act$steps, 
                                by=list(act$interval), 
@@ -132,31 +158,77 @@ plot(act_steps_per_int$interval,
      ylab = "Mean number of steps")
 ```
 
+![](PA1_template_files/figure-html/plot_1-1.png)<!-- -->
+
 
 ##Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r maxsteps}
+
+```r
 maxsteps<- act_steps_per_int$interval[which.max(act_steps_per_int$steps)]
 ```
-This interval contains the maximum number of steps: `r maxsteps`
+This interval contains the maximum number of steps: 835
 
 ##Imputing missing values
 
 Note that there are a number of days/intervals where there are missing values (coded as NA). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
-```{r numbermissing}
+
+```r
 ##count number of missings
 numbermissing<- sum(is.na(act$steps))
 ```
-The number of missing values in the dataset is `r numbermissing`.
+The number of missing values in the dataset is 2304.
 
 
 Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 Create a new dataset that is equal to the original dataset but with the missing data filled in.
-```{r impute}
+
+```r
 ##package for imputation
 library(Hmisc)
+```
 
+```
+## Warning: package 'Hmisc' was built under R version 3.3.3
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Loading required package: survival
+```
+
+```
+## Warning: package 'survival' was built under R version 3.3.3
+```
+
+```
+## Loading required package: Formula
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.3.3
+```
+
+```
+## 
+## Attaching package: 'Hmisc'
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     format.pval, round.POSIXt, trunc.POSIXt, units
+```
+
+```r
 ##copy df to impute missings
 act_imp<- act
 
@@ -165,7 +237,8 @@ act_imp$imputed_steps <- with(act_imp, impute(act_imp$steps, mean))
 ```
 
 Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
-```{r histogram_2}
+
+```r
 ##create histogram with imputed data
 ##first, summarize data
 actimp_steps_per_day <- as.data.frame(tapply(act_imp$imputed_steps, act_imp$date, sum))
@@ -182,17 +255,20 @@ hist(actimp_steps_per_day$steps,
      col = "dark blue",
      breaks=seq(from=0, to=25000, by=3000))
 ```
-```{r meanmedian_2}
+
+![](PA1_template_files/figure-html/histogram_2-1.png)<!-- -->
+
+```r
 mean_2 <- as.integer(mean(actimp_steps_per_day$steps))
 median_2<- as.integer(median(actimp_steps_per_day$steps))
 ```
 
-*The mean number of steps for the imputed data is `r mean_2` and the median is `r median_2`.*
+*The mean number of steps for the imputed data is 10766 and the median is 10766.*
 
 
 Do these values differ from the estimates from the first part of the assignment?
 
-*The mean and median before data-imputation were `r mean_1` and `r median_1`; as you can see, mean and median are higher.*
+*The mean and median before data-imputation were 9354.2295082 and 10395; as you can see, mean and median are higher.*
 
 
 What is the impact of imputing missing data on the estimates of the total daily number of steps?
@@ -210,7 +286,8 @@ Create a new factor variable in the dataset with two levels – “weekday” an
 
 Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r panelplot}
+
+```r
 ##first aggregate the data
 actimp_steps_per_int <- aggregate(act_imp$imputed_steps, 
                                by=list(act_imp$interval, act_imp$date_weekend), 
@@ -231,4 +308,6 @@ ggplot(actimp_steps_per_int, aes(interval, steps)) +
       labs(title = "Mean number of steps per 5 minute interval") +
       scale_color_brewer(palette="Dark2")
 ```
+
+![](PA1_template_files/figure-html/panelplot-1.png)<!-- -->
 
